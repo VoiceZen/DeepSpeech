@@ -6,6 +6,7 @@ from __future__ import print_function
 import json
 import codecs
 import os
+import pandas as pd
 import tarfile
 import time
 from Queue import Queue
@@ -14,7 +15,12 @@ from multiprocessing import Process, Manager, Value
 from paddle.dataset.common import md5file
 
 
-def read_manifest(manifest_path, max_duration=float('inf'), min_duration=0.0):
+def read_manifest(
+    manifest_path,
+    max_duration=float('inf'),
+    min_duration=0.0,
+    type='csv'
+):
     """Load and parse manifest file.
 
     Instances with durations outside [min_duration, max_duration] will be
@@ -30,16 +36,20 @@ def read_manifest(manifest_path, max_duration=float('inf'), min_duration=0.0):
     :rtype: list
     :raises IOError: If failed to parse the manifest.
     """
-    manifest = []
-    for json_line in codecs.open(manifest_path, 'r', 'utf-8'):
-        try:
-            json_data = json.loads(json_line)
-        except Exception as e:
-            raise IOError("Error reading manifest: %s" % str(e))
-        if (json_data["duration"] <= max_duration and
-                json_data["duration"] >= min_duration):
-            manifest.append(json_data)
-    return manifest
+    if type == 'json':
+        manifest = []
+        for json_line in codecs.open(manifest_path, 'r', 'utf-8'):
+            try:
+                json_data = json.loads(json_line)
+            except Exception as e:
+                raise IOError("Error reading manifest: %s" % str(e))
+            if (json_data["duration"] <= max_duration and
+                    json_data["duration"] >= min_duration):
+                manifest.append(json_data)
+        return manifest
+    else:
+        df = pd.read_csv(manifest_path)
+        return df.T.to_dict().values()
 
 
 def getfile_insensitive(path):
