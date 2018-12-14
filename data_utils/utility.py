@@ -48,7 +48,9 @@ def read_manifest(
                 manifest.append(json_data)
         return manifest
     else:
-        df = pd.read_csv(manifest_path)
+        columns = ['audio_filepath', 'duration', 'text']
+        df = pd.read_csv(manifest_path, names=columns)
+        df = df[df['duration'].between(min_duration, max_duration, inclusive=True)]
         return df.T.to_dict().values()
 
 
