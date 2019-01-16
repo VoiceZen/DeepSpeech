@@ -197,7 +197,9 @@ class DataGenerator(object):
             batch = []
             try:
                 for instance in instance_reader():
-                    batch.append(instance)
+                    fp16_instance = (
+                        instance[0].astype('float16'), instance[1])
+                    batch.append(fp16_instance)
                     if len(batch) == batch_size:
                         yield self._padding_batch(batch, padding_to, flatten)
                         batch = []
