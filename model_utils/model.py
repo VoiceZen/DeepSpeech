@@ -214,7 +214,7 @@ class DeepSpeech2Model(object):
 
         return encoded_prob_score
 
-    def vz_decode_batch_greedy(self, probs_split, codec):
+    def get_encoded_strings(self, probs_split, codec):
         """Decode by best path for a batch of probs matrix input.
 
         :param probs_split: List of 2-D probability matrix, and each consists
@@ -379,7 +379,10 @@ class DeepSpeech2Model(object):
         def adapt_instance(instance):
             padded_audio = instance[0]
             text = instance[1]
-            audio_len = instance[2]
+
+            # for inference
+            audio_len = padded_audio.shape[1]
+
             # no padding part
             adapted_instance = [padded_audio, text]
             # Stride size for conv0 is (3, 2)

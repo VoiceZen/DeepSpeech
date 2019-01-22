@@ -10,6 +10,7 @@ from data_utils.data import DataGenerator
 from model_utils.model import DeepSpeech2Model
 from utils.error_rate import wer, cer
 from utils.utility import add_arguments, print_arguments
+import pandas as pd
 
 from vz.asr.base.encoders import ProbCodec
 
@@ -95,36 +96,47 @@ def infer():
         infer_data=infer_data,
         feeding_dict=data_generator.feeding)
 
-    # encoded_prob_score = ""
-    # result_transcripts = ds2_model.decode_batch_greedy(
-    #     probs_split=probs_split,
-    #     vocab_list=vocab_list)
-    result_transcripts = ds2_model.vz_decode_batch_greedy(
+    result_transcripts = ds2_model.decode_batch_greedy(
+        probs_split=probs_split,
+        vocab_list=vocab_list)
+
+    result_encodings = ds2_model.get_encoded_strings(
         probs_split=probs_split,
         codec=codec
     )
 
-    import pdb; pdb.set_trace()  # breakpoint 710865d2 //
-
-    error_rate_func = cer if args.error_rate_type == 'cer' else wer
+    # error_rate_func = cer if args.error_rate_type == 'cer' else wer
     # target_transcripts = [data[1] for data in infer_data]
-    for target, result in zip(target_transcripts, result_transcripts):
-        print("\nTarget Transcription: %s\nOutput Transcription: %s" %
-              (target, result))
-        print("Current error rate [%s] = %f" %
-              (args.error_rate_type, error_rate_func(target, result)))
 
+    cols = ['filepath', 'orig_script', 'infer_script', 'encode']
+    res = []
+    for target, result, encode in zip(
+        infer_data,
+        result_transcripts,
+        result_encodings
+    ):
+        res.append([
+            target[3],
+            target[1],
+            result,
+            encode
+        ])
+
+    df = pd.DataFrame(res, columns=cols)
+    df.to_csv('infer.csv', index=False)
     ds2_model.logger.info("finish inference")
 
 
 def main():
     print_arguments(args)
-    paddle.init(use_gpu=args.use_gpu,
-                rnn_use_batch=True,
-                trainer_count=args.trainer_count)
+    if args.use_gpu:
+        paddle.init(
+            use_gpu=True,
+            rnn_use_batch=True,
+            trainer_count=args.trainer_count)
+    else:
+        paddle.init(use_gpu=False, trainer_count=1)
     infer()
-
 
 if __name__ == '__main__':
     main()
-
