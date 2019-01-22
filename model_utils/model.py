@@ -205,6 +205,32 @@ class DeepSpeech2Model(object):
         ]
         return probs_split
 
+    def vz_ctc_greedy_decoder(self, probs, codec):
+        encoded_prob_score = ""
+        for i, x in enumerate(probs):
+            encoded_prob_score = encoded_prob_score + codec.encode_sentence_prob(x)
+            if i > 0:
+                encoded_prob_score = encoded_prob_score + ";"
+
+        return encoded_prob_score
+
+    def vz_decode_batch_greedy(self, probs_split, codec):
+        """Decode by best path for a batch of probs matrix input.
+
+        :param probs_split: List of 2-D probability matrix, and each consists
+                            of prob vectors for one speech utterancce.
+        :param probs_split: List of matrix
+        :param vocab_list: List of tokens in the vocabulary, for decoding.
+        :type vocab_list: list
+        :return: List of transcription texts.
+        :rtype: List of basestring
+        """
+        results = []
+        for i, probs in enumerate(probs_split):
+            output_transcription = codec.encode_sentence_prob(probs)
+            results.append(output_transcription)
+        return results
+
     def decode_batch_greedy(self, probs_split, vocab_list):
         """Decode by best path for a batch of probs matrix input.
 
@@ -351,15 +377,10 @@ class DeepSpeech2Model(object):
         """
 
         def adapt_instance(instance):
-            if len(instance) < 2 or len(instance) > 3:
-                raise ValueError("Size of instance should be 2 or 3.")
             padded_audio = instance[0]
             text = instance[1]
+            audio_len = instance[2]
             # no padding part
-            if len(instance) == 2:
-                audio_len = padded_audio.shape[1]
-            else:
-                audio_len = instance[2]
             adapted_instance = [padded_audio, text]
             # Stride size for conv0 is (3, 2)
             # Stride size for conv1 to convN is (1, 2)
@@ -440,3 +461,4 @@ class DeepSpeech2Model(object):
             rnn_size=rnn_layer_size,
             use_gru=use_gru,
             share_rnn_weights=share_rnn_weights)
+
