@@ -58,9 +58,9 @@ class DataGenerator(object):
     :type keep_transcription_text: bool
     :param place: The place to run the program.
     :type place: CPUPlace or CUDAPlace
-    :param is_training: If set to True, generate text data for training, 
+    :param is_training: If set to True, generate text data for training,
                         otherwise,  generate text data for infer.
-    :type is_training: bool 
+    :type is_training: bool
     """
 
     def __init__(self,
@@ -129,7 +129,7 @@ class DataGenerator(object):
         specgram, transcript_part = self._speech_featurizer.featurize(
             speech_segment, self._keep_transcription_text)
         specgram = self._normalizer.apply(specgram)
-        return specgram, transcript_part
+        return specgram, transcript_part, audio_file
 
     def batch_reader_creator(self,
                              manifest_path,

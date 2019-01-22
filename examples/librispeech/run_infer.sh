@@ -2,30 +2,24 @@
 
 cd ../.. > /dev/null
 
-# download language model
-cd models/lm > /dev/null
-bash download_lm_en.sh
+# cd models/lm > /dev/null
+# sh download_lm_en.sh
 if [ $? -ne 0 ]; then
     exit 1
 fi
-cd - > /dev/null
+# cd - > /dev/null
 
 
 # infer
-CUDA_VISIBLE_DEVICES=0 \
-python -u infer.py \
---num_samples=10 \
---beam_size=500 \
---num_proc_bsearch=8 \
+CUDA_VISIBLE_DEVICES=0,1 \
+python -u greed_infer.py \
+--num_samples=32 \
+--trainer_count=2 \
 --num_conv_layers=2 \
 --num_rnn_layers=3 \
---rnn_layer_size=2048 \
---alpha=2.5 \
---beta=0.3 \
---cutoff_prob=1.0 \
---cutoff_top_n=40 \
---use_gru=False \
---use_gpu=True \
+--rnn_layer_size=1024 \
+--use_gru=True \
+--use_gpu=False \
 --share_rnn_weights=True \
 --infer_manifest='data/librispeech/manifest.test-clean' \
 --mean_std_path='data/librispeech/mean_std.npz' \
