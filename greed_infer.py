@@ -8,8 +8,8 @@ import functools
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model_utils.model import DeepSpeech2Model
-from utils.error_rate import wer, cer
 from utils.utility import add_arguments, print_arguments
+from util import infer_batch
 import pandas as pd
 
 from vz.asr.base.encoders import ProbCodec
@@ -73,11 +73,6 @@ def infer():
         sortagrad=False,
         shuffle_method=None)
 
-    vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
-
-    codec = ProbCodec(vocab_list, True)
-    infer_data = batch_reader().next()
-
     ds2_model = DeepSpeech2Model(
         vocab_size=data_generator.vocab_size,
         num_conv_layers=args.num_conv_layers,
@@ -87,44 +82,38 @@ def infer():
         pretrained_model_path=args.model_path,
         share_rnn_weights=args.share_rnn_weights)
 
-    # decoders only accept string encoded in utf-8
     vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
-
-    ds2_model.logger.info("start inference ...")
-
-    probs_split = ds2_model.infer_batch_probs(
-        infer_data=infer_data,
-        feeding_dict=data_generator.feeding)
-
-    result_transcripts = ds2_model.decode_batch_greedy(
-        probs_split=probs_split,
-        vocab_list=vocab_list)
-
-    result_encodings = ds2_model.get_encoded_strings(
-        probs_split=probs_split,
-        codec=codec
-    )
-
-    # error_rate_func = cer if args.error_rate_type == 'cer' else wer
-    # target_transcripts = [data[1] for data in infer_data]
-
-    cols = ['filepath', 'orig_script', 'infer_script', 'encode']
+    codec = ProbCodec(vocab_list, True)
+    iterations_for_write = 2  # 200
     res = []
-    for target, result, encode in zip(
-        infer_data,
-        result_transcripts,
-        result_encodings
-    ):
-        res.append([
-            target[3],
-            target[1],
-            result,
-            encode
-        ])
+    cols = ['filepath', 'orig_script', 'infer_script', 'encode']
+    for batch_id, data_batch in enumerate(batch_reader()):
+        print("batch id is {}".format(batch_id))
+        print((batch_id + 1) % iterations_for_write)
+        if (batch_id + 1) % iterations_for_write == 0:
+            # write to csv
+            # this is just to ensure oom
+            df = pd.DataFrame(res, columns=cols)
+            tmp = int((batch_id + 1) / iterations_for_write)
+            df.to_csv(
+                'batch-infer-{}.csv'.format(tmp),
+                index=False,
+                header=False
+            )
+            res = []
+
+        infer_out = infer_batch(
+            ds2_model, data_batch, data_generator, codec, args)
+        res.extend(infer_out)
 
     df = pd.DataFrame(res, columns=cols)
-    df.to_csv('infer.csv', index=False)
-    ds2_model.logger.info("finish inference")
+    df.to_csv(
+        'batch-infer-last.csv'.format(batch_id),
+        index=False,
+        header=False
+    )
+    import pdb; pdb.set_trace()  # breakpoint 57d9f2d3 //
+
 
 
 def main():
