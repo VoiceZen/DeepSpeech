@@ -57,7 +57,7 @@ if __name__ == "__main__":
         manifest_path=args.infer_manifest,
         batch_size=args.num_samples,
         min_batch_size=1,
-        sortagrad=False,
+        sortagrad=True,
         shuffle_method=None)
 
     vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]

@@ -195,11 +195,14 @@ class DataGenerator(object):
             # prepare batches
             instance_reader, cleanup = self._instance_reader_creator(manifest)
             batch = []
+            total_duration = 0
             try:
                 for instance in instance_reader():
                     batch.append(instance)
-                    if len(batch) == batch_size:
+                    total_duration += instance[0]["duration"]
+                    if total_duration > 2000:
                         yield self._padding_batch(batch, padding_to, flatten)
+                        total_duration = 0
                         batch = []
                 if len(batch) >= min_batch_size:
                     yield self._padding_batch(batch, padding_to, flatten)
