@@ -24,7 +24,7 @@ def infer_batch(infer_data, data_generator, codec, batch_id, args):
         pretrained_model_path=args.model_path,
         share_rnn_weights=args.share_rnn_weights)
 
-    print("Processing batch {}".format(batch_id))
+    print("#> Processing batch {}".format(batch_id))
     st2 = time.time()
     # decoders only accept string encoded in utf-8
     vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
@@ -66,10 +66,10 @@ def infer_batch(infer_data, data_generator, codec, batch_id, args):
     )
     et = time.time()
 
-    total_time1 = (et - st1)
+    total_time1 = (st2 - st1)
     total_time2 = (et - st2)
-    duration = 10
-    print("Time taken to process batch of duration {} is {}-{}".format(
-        duration, total_time1, total_time2))
+    print("#> Batch size: {}".format(df.shape[0]))
+    print("#> Time to load model: {}".format(total_time1))
+    print("#> Time to infer: {}".format(total_time2))
     return res
 

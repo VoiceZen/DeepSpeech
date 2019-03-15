@@ -197,10 +197,10 @@ class DataGenerator(object):
             batch = []
             total_duration = 0
             try:
-                for instance in instance_reader():
+                for instance, duration in instance_reader():
                     batch.append(instance)
-                    total_duration += instance[0]["duration"]
-                    if total_duration > 2000:
+                    total_duration += duration
+                    if total_duration > 1000 or len(batch) > 750:
                         yield self._padding_batch(batch, padding_to, flatten)
                         total_duration = 0
                         batch = []
@@ -282,7 +282,7 @@ class DataGenerator(object):
                 yield instance
 
         reader, cleanup_callback = xmap_readers_mp(
-            lambda instance: self.process_utterance(instance["audio_filepath"], instance["text"]),
+            lambda instance: (self.process_utterance(instance["audio_filepath"], instance["text"]), instance["duration"]),
             reader, self._num_threads, 4096)
 
         return reader, cleanup_callback
