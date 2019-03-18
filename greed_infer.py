@@ -6,7 +6,7 @@ from vz.asr.base.encoders import ProbCodec
 
 from data_utils.data import DataGenerator
 from utils.utility import add_arguments
-from util import infer_batch
+from util import infer_batch, infer_batch_builder
 
 
 parser = argparse.ArgumentParser(description=__doc__)
@@ -64,9 +64,11 @@ if __name__ == "__main__":
     codec = ProbCodec(vocab_list, True)
     cols = ['filepath', 'orig_script', 'infer_script', 'encode']
 
+    infer_func = infer_batch_builder(data_generator=data_generator, args=args)
+
     for batch_id, data_batch in enumerate(batch_reader()):
-        infer_args = (data_batch, data_generator, codec, batch_id, args)
-        proc = Process(target=infer_batch, args=infer_args)
+        infer_args = (data_batch, codec, batch_id)
+        proc = Process(target=infer_func, args=infer_args)
         proc.start()
         proc.join()
 
