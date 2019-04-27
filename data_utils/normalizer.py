@@ -75,7 +75,7 @@ class FeatureNormalizer(object):
 
     def _compute_mean_std(self, manifest_path, featurize_func, num_samples):
         """Compute mean and std from randomly sampled instances."""
-        manifest = read_manifest(manifest_path)
+        manifest = read_manifest(manifest_path, type='csv')
         sampled_manifest = self._rng.sample(manifest, num_samples)
         features = []
         for instance in sampled_manifest:

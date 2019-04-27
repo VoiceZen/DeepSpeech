@@ -34,10 +34,13 @@ args = parser.parse_args()
 
 
 def count_manifest(counter, manifest_path):
-    manifest_jsons = read_manifest(manifest_path)
-    for line_json in manifest_jsons:
-        for char in line_json['text']:
-            counter.update(char)
+    manifests = read_manifest(manifest_path, type='csv')
+    for line in manifests:
+        try:
+            for char in line['text']:
+                counter.update(char)
+        except:
+            import pdb; pdb.set_trace()
 
 
 def main():
@@ -51,7 +54,10 @@ def main():
     with codecs.open(args.vocab_path, 'w', 'utf-8') as fout:
         for char, count in count_sorted:
             if count < args.count_threshold: break
-            fout.write(char + '\n')
+            try:
+                fout.write(char + '\n')
+            except:
+                import pdb; pdb.set_trace()
 
 
 if __name__ == '__main__':

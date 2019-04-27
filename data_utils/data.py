@@ -115,7 +115,16 @@ class DataGenerator(object):
             speech_segment = SpeechSegment.from_file(
                 self._subfile_from_tar(audio_file), transcript)
         else:
-            speech_segment = SpeechSegment.from_file(audio_file, transcript)
+            # AN: hack for dhwani bail out
+            try:
+                speech_segment = SpeechSegment.from_file(audio_file, transcript)
+            except:
+                print("******************** Audio file problems", audio_file, transcript)
+
+                audio_file = "/bigdata/ml/audios/438003188008252_customer_4_53850_55050_1555060631660000007559654453.wav"
+                transcript = "aisa koi system toh nahi hai na"
+                speech_segment = SpeechSegment.from_file(audio_file, transcript)
+
         self._augmentation_pipeline.transform_audio(speech_segment)
         specgram, transcript_part = self._speech_featurizer.featurize(
             speech_segment, self._keep_transcription_text)
