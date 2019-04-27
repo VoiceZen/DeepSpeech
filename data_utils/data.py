@@ -129,7 +129,7 @@ class DataGenerator(object):
         specgram, transcript_part = self._speech_featurizer.featurize(
             speech_segment, self._keep_transcription_text)
         specgram = self._normalizer.apply(specgram)
-        return specgram, transcript_part, audio_file
+        return specgram, transcript_part
 
     def batch_reader_creator(self,
                              manifest_path,
