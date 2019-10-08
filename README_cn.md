@@ -27,6 +27,13 @@
 - 只支持Python 2.7
 - PaddlePaddle 1.6.0 版本及以上（请参考[安装指南](https://www.paddlepaddle.org.cn/install/quick)）
 
+因该项目基于 PaddlePaddle V2 API 开发，其已不再被官方维护，为了避免环境配置问题，强烈建议在[Docker容器上运行](#在Docker容器上运行)，否则请按照下面的指南安装依赖项。我们很快会将这个项目升级到最新的 Paddle Fluid  API，请保持关注。
+
+### 前提
+- 只支持Python 2.7
+- PaddlePaddle 0.13 版本(请参考[安装指南](https://www.paddlepaddle.org.cn/documentation/docs/zh/0.13.0/build_and_install/index_cn.html))
+
+
 ### 安装
 - 请确保以下库或工具已安装完毕：`pkg-config`, `flac`, `ogg`, `vorbis`, `boost` 和 `swig`, 如可以通过`apt-get`安装：
 
@@ -69,14 +76,14 @@ sh setup.sh
     cd examples/tiny
     ```
 
-    注意这仅仅是 LibriSpeech 一个小数据集的例子。如果你想尝试完整的数据集（可能需要花好几天来训练模型），请使用这个路径`examples/librispeech`。  
+    注意这仅仅是 LibriSpeech 一个小数据集的例子。如果你想尝试完整的数据集（可能需要花好几天来训练模型），请使用这个路径`examples/librispeech`。
 - 准备数据
 
     ```bash
     sh run_data.sh
     ```
 
-    运行`run_data.sh`脚本将会下载数据集，产出 manifests 文件，收集一些归一化需要的统计信息并建立词表。当数据准备完成之后，下载完的数据（仅有 LibriSpeech 一部分）在`dataset/librispeech`中；其对应的 manifest 文件，均值标准差和词表文件在`./data/tiny`中。在第一次执行的时候一定要执行这个脚本，在接下来所有的实验中我们都会用到这个数据集。  
+    运行`run_data.sh`脚本将会下载数据集，产出 manifests 文件，收集一些归一化需要的统计信息并建立词表。当数据准备完成之后，下载完的数据（仅有 LibriSpeech 一部分）在`dataset/librispeech`中；其对应的 manifest 文件，均值标准差和词表文件在`./data/tiny`中。在第一次执行的时候一定要执行这个脚本，在接下来所有的实验中我们都会用到这个数据集。
 - 训练你自己的 ASR 模型
 
     ```bash
