@@ -31,7 +31,11 @@
 
 ### 前提
 - 只支持Python 2.7
-- PaddlePaddle 0.13 版本(请参考[安装指南](https://www.paddlepaddle.org.cn/documentation/docs/zh/0.13.0/build_and_install/index_cn.html))
+- PaddlePaddle 0.13 版本
+
+```bash
+pip install paddlepaddle==0.13
+```
 
 
 ### 安装
