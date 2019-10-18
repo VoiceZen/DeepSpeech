@@ -5,6 +5,8 @@ from __future__ import print_function
 
 import argparse
 import functools
+import pickle
+import pandas as pd
 import paddle.v2 as paddle
 from data_utils.data import DataGenerator
 from model_utils.model import DeepSpeech2Model
@@ -57,6 +59,10 @@ add_arg('specgram_type',    str,
         'linear',
         "Audio feature type. Options: linear, mfcc.",
         choices=['linear', 'mfcc'])
+add_arg('logits_file',    str,
+        'linear',
+        "Pickle file to  save the logits.",
+        )
 # yapf: disable
 args = parser.parse_args()
 
@@ -76,7 +82,7 @@ def infer():
         min_batch_size=1,
         sortagrad=False,
         shuffle_method=None)
-    infer_data = batch_reader().next()
+    # infer_data = batch_reader().next()
 
     ds2_model = DeepSpeech2Model(
         vocab_size=data_generator.vocab_size,
@@ -89,38 +95,41 @@ def infer():
 
     # decoders only accept string encoded in utf-8
     vocab_list = [chars.encode("utf-8") for chars in data_generator.vocab_list]
+    manifest = args.infer_manifest
+    df = pd.read_csv(manifest)
+    total_batches = int(df.shape[0]/args.num_samples)
 
-    if args.decoding_method == "ctc_greedy":
-        ds2_model.logger.info("start inference ...")
+    dump_out = {}
+    dump_results = {}
+    ds2_model.logger.info("start inference ...")
+
+    for index, infer_data in enumerate(batch_reader()):
+        print("----------------------")
+        if index % 5 == 0:
+            ds2_model.logger.info("Completed {}/{}".format(index, total_batches))
+
         probs_split = ds2_model.infer_batch_probs(infer_data=infer_data,
             feeding_dict=data_generator.feeding)
-        result_transcripts = ds2_model.decode_batch_greedy(
-            probs_split=probs_split,
-            vocab_list=vocab_list)
-    else:
-        ds2_model.init_ext_scorer(args.alpha, args.beta, args.lang_model_path,
-                                  vocab_list)
-        ds2_model.logger.info("start inference ...")
-        probs_split = ds2_model.infer_batch_probs(infer_data=infer_data,
-            feeding_dict=data_generator.feeding)
-        result_transcripts = ds2_model.decode_batch_beam_search(
-            probs_split=probs_split,
-            beam_alpha=args.alpha,
-            beam_beta=args.beta,
-            beam_size=args.beam_size,
-            cutoff_prob=args.cutoff_prob,
-            cutoff_top_n=args.cutoff_top_n,
-            vocab_list=vocab_list,
-            num_processes=args.num_proc_bsearch)
 
-    error_rate_func = cer if args.error_rate_type == 'cer' else wer
-    target_transcripts = [data[1] for data in infer_data]
-    for target, result in zip(target_transcripts, result_transcripts):
-        print("\nTarget Transcription: %s\nOutput Transcription: %s" %
-              (target, result))
-        print("Current error rate [%s] = %f" %
-              (args.error_rate_type, error_rate_func(target, result)))
+        for index, input_data in enumerate(infer_data):
+            _, audio_path, _ = input_data
+            dump_results[audio_path] = probs_split[index]
 
+    dump_out["logits"] = dump_results
+    dump_out["vocab"] = {
+        index: char
+        for index, char in enumerate(vocab_list)
+    }
+    # error_rate_func = cer if args.error_rate_type == 'cer' else wer
+    # target_transcripts = [data[1] for data in infer_data]
+    # for target, result in zip(target_transcripts, result_transcripts):
+    #     print("\nTarget Transcription: %s\nOutput Transcription: %s" %
+    #           (target, result))
+    #     print("Current error rate [%s] = %f" %
+    #           (args.error_rate_type, error_rate_func(target, result)))
+
+    with open(args.logits_file, 'wb') as f:
+        pickle.dump(dump_out, f, protocol=pickle.HIGHEST_PROTOCOL)
     ds2_model.logger.info("finish inference")
 
 def main():

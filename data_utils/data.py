@@ -116,7 +116,7 @@ class DataGenerator(object):
         specgram, transcript_part = self._speech_featurizer.featurize(
             speech_segment, self._keep_transcription_text)
         specgram = self._normalizer.apply(specgram)
-        return specgram, transcript_part
+        return specgram, audio_file, transcript_part
 
     def batch_reader_creator(self,
                              manifest_path,
@@ -297,19 +297,19 @@ class DataGenerator(object):
         """
         new_batch = []
         # get target shape
-        max_length = max([audio.shape[1] for audio, text in batch])
+        max_length = max([audio.shape[1] for audio, _, _ in batch])
         if padding_to != -1:
             if padding_to < max_length:
                 raise ValueError("If padding_to is not -1, it should be larger "
                                  "than any instance's shape in the batch")
             max_length = padding_to
         # padding
-        for audio, text in batch:
+        for audio, audio_path, text in batch:
             padded_audio = np.zeros([audio.shape[0], max_length])
             padded_audio[:, :audio.shape[1]] = audio
             if flatten:
                 padded_audio = padded_audio.flatten()
-            padded_instance = [padded_audio, text, audio.shape[1]]
+            padded_instance = [padded_audio, audio_path, audio.shape[1]]
             new_batch.append(padded_instance)
         return new_batch
 
