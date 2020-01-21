@@ -14,7 +14,7 @@ python -u infer.py \
 --use_gru=False \
 --use_gpu=True \
 --share_rnn_weights=True \
---infer_manifest='/home/vz/Users/ak47/projects/DeepSpeech/sample.csv' \
+--infer_manifest='examples/custom/sample.csv' \
 --mean_std_path='data/custom/mean_std.npz' \
 --vocab_path='data/custom/vocab.txt' \
 --model_path='/nfs/alldata/zeus/pretrained_ds2/libris' \
