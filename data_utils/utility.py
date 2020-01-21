@@ -6,21 +6,16 @@ from __future__ import print_function
 import json
 import codecs
 import os
-import pandas as pd
 import tarfile
 import time
+import pandas as pd
 from Queue import Queue
 from threading import Thread
 from multiprocessing import Process, Manager, Value
 from paddle.dataset.common import md5file
 
 
-def read_manifest(
-    manifest_path,
-    max_duration=float('inf'),
-    min_duration=0.0,
-    type='csv'
-):
+def read_manifest(manifest_path, max_duration=float('inf'), min_duration=0.0,type='csv'):
     """Load and parse manifest file.
 
     Instances with durations outside [min_duration, max_duration] will be
@@ -32,6 +27,8 @@ def read_manifest(
     :type max_duration: float
     :param min_duration: Minimal duration in seconds for instance filter.
     :type min_duration: float
+    :param type: csv or json
+    :type type: str
     :return: Manifest parsing results. List of dict.
     :rtype: list
     :raises IOError: If failed to parse the manifest.
@@ -47,9 +44,10 @@ def read_manifest(
                     json_data["duration"] >= min_duration):
                 manifest.append(json_data)
         return manifest
+
     else:
-        columns = ['audio_filepath', 'duration', 'text']
-        df = pd.read_csv(manifest_path, names=columns)
+        
+        df = pd.read_csv(manifest_path)
         df = df[df['duration'].between(min_duration, max_duration, inclusive=True)]
         return df.T.to_dict().values()
 
