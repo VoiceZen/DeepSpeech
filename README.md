@@ -48,13 +48,13 @@ pip install paddlepaddle-gpu==0.13
 - Make sure these libraries or tools installed: `pkg-config`, `flac`, `ogg`, `vorbis`, `boost` and `swig`, e.g. installing them via `apt-get`:
 
 ```bash
-sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig
+sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python-dev
 ```
 
 or, installing them via `yum`:
 
 ```bash
-sudo yum install pkgconfig libogg-devel libvorbis-devel boost-devel
+sudo yum install pkgconfig libogg-devel libvorbis-devel boost-devel python-devel
 wget https://ftp.osuosl.org/pub/xiph/releases/flac/flac-1.3.1.tar.xz
 xz -d flac-1.3.1.tar.xz
 tar -xvf flac-1.3.1.tar
@@ -150,11 +150,11 @@ To perform z-score normalization (zero-mean, unit stddev) upon audio features, w
 python tools/compute_mean_std.py \
 --num_samples 2000 \
 --specgram_type linear \
---manifest_paths data/librispeech/manifest.train \
+--manifest_path data/librispeech/manifest.train \
 --output_path data/librispeech/mean_std.npz
 ```
 
-It will compute the mean and standard deviation of power spectrum feature with 2000 random sampled audio clips listed in `data/librispeech/manifest.train` and save the results to `data/librispeech/mean_std.npz` for further usage.
+It will compute the mean and standard deviatio of power spectrum feature with 2000 random sampled audio clips listed in `data/librispeech/manifest.train` and save the results to `data/librispeech/mean_std.npz` for further usage.
 
 
 ### Build Vocabulary
