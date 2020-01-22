@@ -57,10 +57,14 @@ add_arg('error_rate_type',  str,
         'wer',
         "Error rate type for evaluation.",
         choices=['wer', 'cer'])
+add_arg('type',  str,
+        'csv',
+        "manifest file type.")
 add_arg('specgram_type',    str,
         'linear',
         "Audio feature type. Options: linear, mfcc.",
         choices=['linear', 'mfcc'])
+        
 # yapf: disable
 args = parser.parse_args()
 
@@ -85,7 +89,8 @@ def infer():
         specgram_type=args.specgram_type,
         keep_transcription_text=True,
         place = place,
-        is_training = False)
+        is_training = False,
+        file_type=args.type)
     batch_reader = data_generator.batch_reader_creator(
         manifest_path=args.infer_manifest,
         batch_size=args.num_samples,

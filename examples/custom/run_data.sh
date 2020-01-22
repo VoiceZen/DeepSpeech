@@ -4,7 +4,7 @@ if [ ! -e data/custom ]; then
 fi
 
 
-head -n 100  /home/vz/Users/ak47/projects/DeepSpeech/data/tiny/manifest.test-clean.csv > data/custom/manifest.tiny.csv
+head -n 1000  /nfs/alldata/Airtel/Manifest/pipeline/inference_outputs/airtel_paddle_input.csv > data/custom/manifest.tiny.csv
 
 # build vocabulary
 python tools/build_vocab.py \

@@ -2,7 +2,7 @@
 CUDA_VISIBLE_DEVICES=0,1 \
 python -u infer.py \
 --num_samples=10 \
---beam_size=500 \
+--beam_size=128 \
 --num_proc_bsearch=8 \
 --num_conv_layers=2 \
 --num_rnn_layers=3 \
@@ -14,9 +14,9 @@ python -u infer.py \
 --use_gru=False \
 --use_gpu=True \
 --share_rnn_weights=True \
---infer_manifest='examples/custom/sample.csv' \
+--infer_manifest="/nfs/alldata/Airtel/Manifest/pipeline/inference_outputs/airtel_paddle_input.csv" \
 --mean_std_path='data/custom/mean_std.npz' \
---vocab_path='data/custom/vocab.txt' \
+--vocab_path='/nfs/alldata/zeus/pretrained_ds2/libris/vocab.txt' \
 --model_path='/nfs/alldata/zeus/pretrained_ds2/libris' \
 --lang_model_path='/nfs/alldata/zeus/pretrained_ds2/common_crawl_00.prune01111.trie.klm' \
 --decoding_method='ctc_beam_search' \

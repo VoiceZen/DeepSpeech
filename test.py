@@ -5,6 +5,7 @@ from __future__ import print_function
 
 import argparse
 import functools
+import pandas as pd
 import paddle.fluid as fluid
 from data_utils.data import DataGenerator
 from model_utils.model import DeepSpeech2Model
@@ -38,6 +39,9 @@ add_arg('mean_std_path',    str,
 add_arg('vocab_path',       str,
         'data/librispeech/vocab.txt',
         "Filepath of vocabulary.")
+add_arg('infer_out_file',       str,
+        './data/custom/infer_out.csv',
+        "Filepath of vocabulary.")
 add_arg('model_path',       str,
         './checkpoints/libri/step_final',
         "If None, the training starts from scratch, "
@@ -53,6 +57,9 @@ add_arg('error_rate_type',  str,
         'wer',
         "Error rate type for evaluation.",
         choices=['wer', 'cer'])
+add_arg('type',  str,
+        'csv',
+        "manifest file type.")
 add_arg('specgram_type',    str,
         'linear',
         "Audio feature type. Options: linear, mfcc.",
@@ -81,7 +88,8 @@ def evaluate():
         specgram_type=args.specgram_type,
         keep_transcription_text=True,
         place = place,
-        is_training = False)
+        is_training = False,
+        file_type=args.type)
     batch_reader = data_generator.batch_reader_creator(
         manifest_path=args.test_manifest,
         batch_size=args.batch_size,
@@ -107,7 +115,13 @@ def evaluate():
     errors_func = char_errors if args.error_rate_type == 'cer' else word_errors
     errors_sum, len_refs, num_ins = 0.0, 0, 0
     ds2_model.logger.info("start evaluation ...")
-    for infer_data in batch_reader():
+
+    infer_out=[]
+    for ids,infer_data in enumerate(batch_reader()):
+        print("+++++++++++++++++++++++++++++++++")
+        print("Processing Batch: ",ids)
+        print("+++++++++++++++++++++++++++++++++")
+        
         probs_split = ds2_model.infer_batch_probs(
             infer_data=infer_data,
             feeding_dict=data_generator.feeding)
@@ -127,8 +141,15 @@ def evaluate():
                 vocab_list=vocab_list,
                 num_processes=args.num_proc_bsearch)
         target_transcripts = infer_data[1]
-
+        audio_paths = infer_data[-1]
+        
+        infer_out.append(pd.DataFrame(zip(audio_paths,target_transcripts,result_transcripts),columns=['audio_paths','target_transcripts','result_transcripts']))
+        sample=0
         for target, result in zip(target_transcripts, result_transcripts):
+            if sample %50==0:
+                print("\nTarget Transcription: %s\nOutput Transcription: %s" %
+                    (target, result))
+            sample+=1
             errors, len_ref = errors_func(target, result)
             errors_sum += errors
             len_refs += len_ref
@@ -137,7 +158,9 @@ def evaluate():
               (args.error_rate_type, num_ins, errors_sum / len_refs))
     print("Final error rate [%s] (%d/%d) = %f" %
           (args.error_rate_type, num_ins, num_ins, errors_sum / len_refs))
-
+    
+    frame = pd.concat(infer_out, axis=0, ignore_index=True)
+    frame.to_csv(args.infer_out_file,index=False)
     ds2_model.logger.info("finish evaluation")
 
 def main():

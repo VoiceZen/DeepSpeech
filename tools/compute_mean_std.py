@@ -19,6 +19,9 @@ add_arg('specgram_type',    str,
         'linear',
         "Audio feature type. Options: linear, mfcc.",
         choices=['linear', 'mfcc'])
+add_arg('type',       str,
+        'csv',
+        "file type of manifest.")
 add_arg('manifest_path',    str,
         'data/librispeech/manifest.train',
         "Filepath of manifest to compute normalizer's mean and stddev.")
@@ -43,7 +46,7 @@ def main():
         mean_std_filepath=None,
         manifest_path=args.manifest_path,
         featurize_func=augment_and_featurize,
-        num_samples=args.num_samples)
+        num_samples=args.num_samples,file_type=args.type)
     normalizer.write_to_file(args.output_path)
 
 

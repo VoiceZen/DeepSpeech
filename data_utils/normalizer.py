@@ -37,15 +37,17 @@ class FeatureNormalizer(object):
                  manifest_path=None,
                  featurize_func=None,
                  num_samples=500,
-                 random_seed=0):
+                 random_seed=0,
+                 file_type='csv'):
         if not mean_std_filepath:
             if not (manifest_path and featurize_func):
                 raise ValueError("If mean_std_filepath is None, meanifest_path "
                                  "and featurize_func should not be None.")
             self._rng = random.Random(random_seed)
-            self._compute_mean_std(manifest_path, featurize_func, num_samples)
+            self._compute_mean_std(manifest_path, featurize_func, num_samples,file_type)
         else:
             self._read_mean_std_from_file(mean_std_filepath)
+        self.file_type=file_type
 
     def apply(self, features, eps=1e-14):
         """Normalize features to be of zero mean and unit stddev.
@@ -73,9 +75,9 @@ class FeatureNormalizer(object):
         self._mean = npzfile["mean"]
         self._std = npzfile["std"]
 
-    def _compute_mean_std(self, manifest_path, featurize_func, num_samples):
+    def _compute_mean_std(self, manifest_path, featurize_func, num_samples,file_type):
         """Compute mean and std from randomly sampled instances."""
-        manifest = read_manifest(manifest_path, type='csv')
+        manifest = read_manifest(manifest_path, type=file_type)
         sampled_manifest = self._rng.sample(manifest, num_samples)
         features = []
         for instance in sampled_manifest:
