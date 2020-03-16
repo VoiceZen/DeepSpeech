@@ -77,7 +77,8 @@ class DataGenerator(object):
                  random_seed=0,
                  keep_transcription_text=False,
                  place=fluid.CPUPlace(),
-                 is_training=True):
+                 is_training=True,file_type='csv'):
+        self.type=file_type
         self._max_duration = max_duration
         self._min_duration = min_duration
         self._normalizer = FeatureNormalizer(mean_std_filepath)
@@ -120,7 +121,7 @@ class DataGenerator(object):
         specgram, transcript_part = self._speech_featurizer.featurize(
             speech_segment, self._keep_transcription_text)
         specgram = self._normalizer.apply(specgram)
-        return specgram, transcript_part
+        return specgram, transcript_part, audio_file
 
     def batch_reader_creator(self,
                              manifest_path,
@@ -174,7 +175,8 @@ class DataGenerator(object):
             manifest = read_manifest(
                 manifest_path=manifest_path,
                 max_duration=self._max_duration,
-                min_duration=self._min_duration)
+                min_duration=self._min_duration,
+                type=self.type)
             # sort (by duration) or batch-wise shuffle the manifest
             if self._epoch == 0 and sortagrad:
                 manifest.sort(key=lambda x: x["duration"])
@@ -294,7 +296,7 @@ class DataGenerator(object):
         """
         new_batch = []
         # get target shape
-        max_length = max([audio.shape[1] for audio, text in batch])
+        max_length = max([audio.shape[1] for audio, _, _ in batch])
         if padding_to != -1:
             if padding_to < max_length:
                 raise ValueError("If padding_to is not -1, it should be larger "
@@ -302,10 +304,12 @@ class DataGenerator(object):
             max_length = padding_to
         # padding
         padded_audios = []
+        audio_paths=[]
         texts, text_lens = [], []
         audio_lens = []
         masks = []
-        for audio, text in batch:
+        for audio, text, audio_path in batch:
+            audio_paths.append(audio_path)
             padded_audio = np.zeros([audio.shape[0], max_length])
             padded_audio[:, :audio.shape[1]] = audio
             if flatten:
@@ -336,7 +340,7 @@ class DataGenerator(object):
                 texts, recursive_seq_lens=[text_lens], place=self._place)
         audio_lens = np.array(audio_lens).astype('int64').reshape([-1, 1])
         masks = np.array(masks).astype('float32')
-        return padded_audios, texts, audio_lens, masks
+        return padded_audios, texts, audio_lens, masks,audio_paths
 
     def _batch_shuffle(self, manifest, batch_size, clipped=False):
         """Put similarly-sized instances into minibatches for better efficiency

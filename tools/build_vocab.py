@@ -23,6 +23,10 @@ add_arg('count_threshold',  int,    0,  "Truncation threshold for char counts.")
 add_arg('vocab_path',       str,
         'data/librispeech/vocab.txt',
         "Filepath to write the vocabulary.")
+add_arg('type',       str,
+        'csv',
+        "file type of manifest.")
+
 add_arg('manifest_paths',   str,
         None,
         "Filepaths of manifests for building vocabulary. "
@@ -33,8 +37,8 @@ add_arg('manifest_paths',   str,
 args = parser.parse_args()
 
 
-def count_manifest(counter, manifest_path):
-    manifests = read_manifest(manifest_path, type='csv')
+def count_manifest(counter, manifest_path,file_type):
+    manifests = read_manifest(manifest_path, type=file_type)
     for line in manifests:
         try:
             for char in line['text']:
@@ -48,7 +52,7 @@ def main():
 
     counter = Counter()
     for manifest_path in args.manifest_paths:
-        count_manifest(counter, manifest_path)
+        count_manifest(counter, manifest_path,args.type)
 
     count_sorted = sorted(counter.items(), key=lambda x: x[1], reverse=True)
     with codecs.open(args.vocab_path, 'w', 'utf-8') as fout:
