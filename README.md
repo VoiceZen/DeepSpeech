@@ -38,6 +38,7 @@ For this project was developed in PaddlePaddle V2 API, which is not maintained o
 ### Prerequisites
 - Python 2.7 only supported
 - PaddlePaddle the 0.13 version
+- gcc version greater than 8
 
 ```bash
 pip install paddlepaddle-gpu==0.13
