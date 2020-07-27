@@ -40,7 +40,7 @@ For this project was developed in PaddlePaddle V2 API, which is not maintained o
 - PaddlePaddle the 0.13 version
 
 ```bash
-pip install paddlepaddle-gpu==0.13
+pip install paddlepaddle-gpu==1.8.2.post107
 ```
 
 
