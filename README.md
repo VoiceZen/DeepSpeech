@@ -101,6 +101,7 @@ Let's take a tiny sampled subset of [LibriSpeech dataset](http://www.openslr.org
     ```
 
     `run_train.sh` will start a training job, with training logs printed to stdout and model checkpoint of every pass/epoch saved to `./checkpoints/tiny`. These checkpoints could be used for training resuming, inference, evaluation and deployment.
+    Export the cuda path :```export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64/``` and make gpu visible
 - Case inference with an existing model
 
     ```bash
