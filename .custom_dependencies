@@ -1,0 +1,4 @@
+pip install paddlepaddle-gpu==1.8.2.post107
+sudo apt-get install -y pkg-config libflac-dev libogg-dev libvorbis-dev libboost-dev swig python-dev
+sh setup.sh
+export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64/
