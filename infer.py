@@ -112,7 +112,7 @@ def infer():
             feeding_dict=data_generator.feeding)
 
         for index, input_data in enumerate(infer_data):
-            _, audio_path, _ = input_data
+            _, audio_path, _ ,_= input_data
             dump_results[audio_path] = probs_split[index]
 
     dump_out["logits"] = dump_results
