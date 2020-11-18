@@ -25,7 +25,7 @@
 For this project was developed in PaddlePaddle V2 API, which is not maintained officially any more, we only support [running it in Docker container](#running-in-docker-container), instead of building environment from source code. And we are going to release the update to the latest Paddle Fluid API very soon, please keep an eye on this project.
 
 Installation steps:
-* only python 2 supported
+* only python 2.7 supported
 * pip2 install opencv-python==4.2.0.32
 * pip install paddlepaddle-gpu==0.14.0
 * install requiirements.txt
