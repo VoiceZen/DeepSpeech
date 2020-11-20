@@ -27,7 +27,7 @@ For this project was developed in PaddlePaddle V2 API, which is not maintained o
 Installation steps:
 * only python 2.7 supported
 * pip2 install opencv-python==4.2.0.32
-* pip install paddlepaddle-gpu==0.14.0
+* pip install paddlepaddle-gpu==0.14.0 (or cpu version)
 * install requiirements.txt
 * sh setup.sh
 
