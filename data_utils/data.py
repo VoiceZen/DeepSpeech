@@ -309,7 +309,7 @@ class DataGenerator(object):
             padded_audio[:, :audio.shape[1]] = audio
             if flatten:
                 padded_audio = padded_audio.flatten()
-            padded_instance = [padded_audio, audio_path, audio.shape[1]]
+            padded_instance = [padded_audio,audio_path,text,audio.shape[1]]
             new_batch.append(padded_instance)
         return new_batch
 

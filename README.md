@@ -24,6 +24,22 @@
 
 For this project was developed in PaddlePaddle V2 API, which is not maintained officially any more, we only support [running it in Docker container](#running-in-docker-container), instead of building environment from source code. And we are going to release the update to the latest Paddle Fluid API very soon, please keep an eye on this project.
 
+Installation steps:
+* only python 2.7 supported
+* pip2 install opencv-python==4.2.0.32
+* pip install paddlepaddle-gpu==0.14.0 (or cpu version pip install paddlepaddle==0.14.0)
+* install requiirements.txt
+* sh setup.sh
+
+## Few things to keep in mind
+1. manifest that is built should have duration in "seconds".
+2. while decoding from Openseq:
+    * convert duration back into miliseconds
+    * use ds2 vocab for decoding
+    * convert python 2 pickle logits to python 3
+    
+    
+
 ## Getting Started
 
 Several shell scripts provided in `./examples` will help us to quickly give it a try, for most major modules, including data preparation, model training, case inference and model evaluation, with a few public dataset (e.g. [LibriSpeech](http://www.openslr.org/12/), [Aishell](http://www.openslr.org/33)). Reading these examples will also help you to understand how to make it work with your own data.
