@@ -24,13 +24,11 @@ def ds2_transcribe():
     logger.info("processed audio is %s" % dest_audio)
     if not dest_audio:
         return abort(400, {'message': 'Unable to parse required audio'})
-    rle, lm_transcript = transcriber.transcribe([dest_audio])
-    print (lm_transcript)
-    print (rle)
+    output = transcriber.transcribe([dest_audio])
 
     response_dict = {}
-    response_dict['rle'] = rle[0]
-    response_dict['lm'] = lm_transcript[0].decode('utf-8')
+    response_dict['lm'] = output[0][1]
+    response_dict['rle'] = output[0][0]
     response_dict['greedy'] = "greedy"
     response_dict['language'] = "english"
     response_dict['dest_wav'] = dest_audio
@@ -60,6 +58,5 @@ if __name__ == '__main__':
     asr_config = json.load(open(args.config))
     deepspeech_config = dotdict(asr_config['config'])
     transcriber = DeepSpeechTransriber(deepspeech_config)
-    transcriber.load_model()
 
     app.run(host="0.0.0.0", port=args.port, threaded=False, debug=True)
