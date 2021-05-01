@@ -4,6 +4,12 @@ import itertools
 import subprocess
 import numpy as np
 
+class dotdict(dict):
+    """dot.notation access to dictionary attributes"""
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+
 class ScoringExperiment(object):
     def boost_score(self, prob_splits):
         # prob_splits is a list of numpy.ndarray

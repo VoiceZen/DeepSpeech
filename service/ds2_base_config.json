@@ -1,0 +1,33 @@
+  
+{
+    "config":{
+        "beam_size": 500,
+        "num_proc_bsearch": 8,
+        "num_conv_layers": 2,
+        "num_rnn_layers": 3,
+        "rnn_layer_size": 1024,
+        "alpha": 1.4,
+        "beta": 0.35,
+        "cutoff_prob": 1.0,
+        "cutoff_top_n": 40,
+        "use_gru": true,
+        "use_gpu": true,
+        "trainer_count" : 1,
+        "share_rnn_weights": false,
+        "mean_std_path": "/asr/models/trained/mean_std.npz",
+        "vocab_path":"/asr/models/trained/vocab.txt",
+        "model_path": "/asr/models/trained/params.tar.gz",
+        "lang_model_path": "/asr/models/lm/art-trie.klm",
+        "decoding_method": "ctc_beam_search",
+        "specgram_type": "linear",
+        "log_level": 20,
+        "use_hindi": false,
+        "test_manifest": "./manifest.csv",
+        "shuffle_method": "batch_shuffle_clipped",
+        "custom_boost":true,
+        "infer_manifest":"/home/hitler/users/interns/kuldip/DeepSpeech/test/sample_test.input",
+        "logits_file":"linear",
+        "infer_output_file":"sample_test.out",
+        "num_samples":10
+    }
+ }

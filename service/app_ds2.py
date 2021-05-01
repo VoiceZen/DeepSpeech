@@ -1,10 +1,11 @@
 '''Driver script for deepspeech2 service'''
-import argparse
+import json
 import logging
+import argparse
 
 from flask import Flask, request, abort, jsonify
 from transcriber import DeepSpeechTransriber
-from asr_utils import convert_audio
+from asr_utils import convert_audio, dotdict
 
 # Service app session
 app = Flask(__name__)
@@ -56,7 +57,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Load the deepspeech transcriber model and model
-    transcriber = DeepSpeechTransriber()
+    asr_config = json.load(open(args.config))
+    deepspeech_config = dotdict(asr_config['config'])
+    transcriber = DeepSpeechTransriber(deepspeech_config)
     transcriber.load_model()
 
-    app.run(host="0.0.0.0", port=args.port, threaded=True, debug=True)
+    app.run(host="0.0.0.0", port=args.port, threaded=False, debug=True)
